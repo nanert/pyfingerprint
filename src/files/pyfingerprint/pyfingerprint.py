@@ -60,6 +60,9 @@ FINGERPRINT_UPLOADCHARACTERISTICS = 0x09
 ## Note: The documentation mean upload to host computer.
 FINGERPRINT_DOWNLOADCHARACTERISTICS = 0x08
 
+FINGERPRINT_LEDON = 0x50
+FINGERPRINT_LEDOFF = 0x51
+
 ## Parameters of setSystemParameter()
 ##
 
@@ -1549,3 +1552,72 @@ class PyFingerprint(object):
                 completePayload.append(receivedPacketPayload[i])
 
         return completePayload
+
+    def ledOn(self):
+        """
+        Turns on the primary sensor LED.
+        WARNING: Some models may not be able to read fingerprints while the
+                 LED is disabled, or require a specific command packet to
+                 do it. LED can only be turned back on manually via ledOn().
+
+        Author:
+            nanert <nanert@nanert.com>
+
+        Returns:
+            True if successful
+
+        Raises:
+            Exception: if any error occurs
+        """
+
+        packetPayload = ( FINGERPRINT_LEDON, )
+        self.__writePacket(FINGERPRINT_COMMANDPACKET, packetPayload)
+
+        receivedPacket = self.__readPacket()
+
+        receivedPacketType = receivedPacket[0]
+        receivedPacketPayload = receivedPacket[1]
+
+        if ( receivedPacketPayload[0] == FINGERPRINT_OK ):
+            return True
+
+        elif ( receivedPacketPayload[0] == FINGERPRINT_ERROR_COMMUNICATION ):
+            raise Exception('Communication error')
+
+        else:
+            raise Exception('Unknown error '+ hex(receivedPacketPayload[0]))
+
+
+    def ledOff(self):
+        """
+        Turns off the primary sensor LED.
+        WARNING: Some models may not be able to read fingerprints while the
+                 LED is disabled, or require a specific command packet to
+                 do it. LED can only be turned back on manually via ledOn().
+
+        Author:
+            nanert <nanert@nanert.com>
+
+        Returns:
+            True if successful
+
+        Raises:
+            Exception: if any error occurs
+        """
+
+        packetPayload = ( FINGERPRINT_LEDOFF, )
+        self.__writePacket(FINGERPRINT_COMMANDPACKET, packetPayload)
+
+        receivedPacket = self.__readPacket()
+
+        receivedPacketType = receivedPacket[0]
+        receivedPacketPayload = receivedPacket[1]
+
+        if ( receivedPacketPayload[0] == FINGERPRINT_OK ):
+            return True
+
+        elif ( receivedPacketPayload[0] == FINGERPRINT_ERROR_COMMUNICATION ):
+            raise Exception('Communication error')
+
+        else:
+            raise Exception('Unknown error '+ hex(receivedPacketPayload[0]))
